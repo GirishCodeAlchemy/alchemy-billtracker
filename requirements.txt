@@ -6,6 +6,7 @@ Flask-WTF==1.2.1
 Flask-Bcrypt==1.0.1
 werkzeug==3.0.4
 requests
+google-cloud-storage
 oauth2client==4.1.3
 google-auth-oauthlib
 google-auth-httplib2==0.2.0
