@@ -15,8 +15,9 @@ app.secret_key = os.urandom(24)
 token_json = os.getenv("GOOGLE_TOKEN_JSON")
 credentials = os.getenv("GOOGLE_OAUTH_CREDENTIALS")
 
-credential_file = "./credential.json"
-token_file = "./credential.storage"
+token_file = os.getenv("GOOGLE_TOKEN_JSON_FILE")
+credential_file = os.getenv("GOOGLE_OAUTH_CREDENTIAL_FILE")
+
 with open(token_file, "w") as token:
     token.write(token_json)
 
