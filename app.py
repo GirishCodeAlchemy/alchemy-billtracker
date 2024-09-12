@@ -14,7 +14,17 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 token_json = os.getenv("GOOGLE_TOKEN_JSON")
 credentials = os.getenv("GOOGLE_OAUTH_CREDENTIALS")
-gdrive_service = GoogleDriveHelper(credentials, token_json)
+
+credential_file = "./credential.json"
+token_file = "./credential.storage"
+with open(token_file, "w") as token:
+    token.write(token_json)
+
+with open(credential_file, "w") as credential:
+    credential.write(credentials)
+
+
+gdrive_service = GoogleDriveHelper(credential_file, token_file)
 drive_folder_id = gdrive_service.create_folder("test_notion_upload")
 
 receipt_service = ReceiptParser(os.getenv("MINDEE_API_KEY"))
