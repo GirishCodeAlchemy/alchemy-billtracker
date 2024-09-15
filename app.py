@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 
 from dotenv import load_dotenv
@@ -12,20 +13,10 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-token_json = os.getenv("GOOGLE_TOKEN_JSON")
-credentials = os.getenv("GOOGLE_OAUTH_CREDENTIALS")
 
-token_file = os.getenv("GOOGLE_TOKEN_JSON_FILE")
-credential_file = os.getenv("GOOGLE_OAUTH_CREDENTIAL_FILE")
+credential_json = json.loads(os.getenv("GOOGLE_OAUTH_SERVICE_ACCOUNT"))
+gdrive_service = GoogleDriveHelper(credential_json)
 
-with open(token_file, "w") as token:
-    token.write(token_json)
-
-with open(credential_file, "w") as credential:
-    credential.write(credentials)
-
-
-gdrive_service = GoogleDriveHelper(credential_file, token_file)
 drive_folder_id = gdrive_service.create_folder("test_notion_upload")
 
 receipt_service = ReceiptParser(os.getenv("MINDEE_API_KEY"))

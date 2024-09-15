@@ -1,16 +1,9 @@
-import json
 import logging
 import mimetypes
 
-import httplib2
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import run_flow
+from oauth2client.service_account import ServiceAccountCredentials
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
@@ -23,37 +16,14 @@ class GoogleDriveHelper:
 
     VALID_EXTENSIONS = [".pdf", ".png", ".jpeg", ".jpg"]
 
-    def __init__(self, credentail_json, token_json):
+    def __init__(self, credentail_json):
         self.credentail_json_file = credentail_json
-        self.token_json_file = token_json
-        self.STORAGE = Storage(token_json)
-        self.authenticate_google_drive()
+        self.connect_using_service_account()
 
-    def authorize_credentials(self):
-        credentials = self.STORAGE.get()
-        if credentials is None or credentials.invalid or credentials.access_token_expired:
-            # Run the flow to get new credentials"
-            flow = flow_from_clientsecrets(self.credentail_json_file, scope=self.SCOPES)
-            http = httplib2.Http()
-            credentials = run_flow(flow, self.STORAGE, http=http)
-        return credentials
-
-    def authenticate_google_drive(self):
-        credentials = self.authorize_credentials()
-        credentials_json = json.loads(credentials.to_json())
-        creds = Credentials.from_authorized_user_info(info=credentials_json, scopes=self.SCOPES)
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                try:
-                    creds.refresh(Request())
-                except Exception as e:
-                    print(e)
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    self.credentail_json_file, self.SCOPES
-                )
-                creds = flow.run_local_server(port=0)
-
+    def connect_using_service_account(self):
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(
+            self.credentail_json, self.SCOPES
+        )
         self.drive_service = build(
             "drive", "v3", credentials=creds, cache_discovery=False
         )
