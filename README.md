@@ -26,16 +26,15 @@
  - **Flask**
  - **Google Drive API credentials** (OAuth 2.0)
  - **Notion API credentials** (API token and database ID)
- - **An AI/ML model** trained to recognize and extract bill details
- - **Optional: Mindee API** for additional OCR support
+  - **Mindee API** for additional OCR support
 
  ## Installation and Setup
 
  1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-repo/bill-tracker-app.git
-    cd bill-tracker-app
+    git clone https://github.com/girishcodealchemy/alchemy-billtracker.git
+    cd alchemy-billtracker
     ```
 
  2. **Create a virtual environment and activate it:**
@@ -66,10 +65,14 @@
     export NOTION_DATABASE_ID='your_notion_database_id'
     ```
 
- 6. **Add your trained AI/ML model:**
+ 6. **Set up the Mindee API key** (if using Mindee for OCR support):
 
-    - Ensure that your trained model is placed in the project and accessible via the `extract_bill_details` function.
-    - Modify the path to the model and adjust the prediction logic if necessary.
+    - Create a Mindee account at [Mindee](https://mindee.com/) and generate an API key.
+    - Set the Mindee API key as an environment variable in your project:
+
+    ```bash
+    export MINDEE_API_KEY='your_mindee_api_key'
+    ```
 
  7. **Run the Flask application:**
 
@@ -79,81 +82,7 @@
 
  8. **Upload bills** via the web interface at `http://localhost:5000`.
 
- ## Code Snippets
-
- Here’s a brief overview of how key components work:
-
- ### File Upload in Flask
-
- ```python
- @app.route('/upload', methods=['POST'])
- def upload_file():
-     if 'file' not in request.files:
-         return redirect(request.url)
-     file = request.files['file']
-     if file.filename == '':
-         return redirect(request.url)
-     if file:
-         filename = secure_filename(file.filename)
-         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-         # Process the uploaded file here
-         return redirect(url_for('index'))
- ```
-
- ### AI/ML Model Integration
-
- ```python
- def extract_bill_details(image_path):
-     # Process the image through your ML model
-     result = model.predict(image_path)
-     details = {
-         'supplier_name': result['supplier_name'],
-         'invoice_number': result['invoice_number'],
-         'date': result['date'],
-         'tax': result['tax'],
-         'net_amount': result['net_amount'],
-         'category': result['category']
-     }
-     return details
- ```
-
- ### Google Drive Upload
-
- ```python
- def upload_to_drive(file_path):
-     file = drive.CreateFile({'title': os.path.basename(file_path)})
-     file.SetContentFile(file_path)
-     file.Upload()
-     print(f'Uploaded {file_path} to Google Drive')
- ```
-
- ### Notion API Integration
-
- ```python
- def create_notion_entry(details):
-     headers = {
-         "Authorization": f"Bearer {NOTION_TOKEN}",
-         "Content-Type": "application/json",
-         "Notion-Version": "2021-05-13"
-     }
-     data = {
-         "parent": {"database_id": NOTION_DATABASE_ID},
-         "properties": {
-             "Supplier Name": {"title": [{"text": {"content": details['supplier_name']}}]},
-             "Invoice Number": {"rich_text": [{"text": {"content": details['invoice_number']}}]},
-             "Date": {"date": {"start": details['date']}},
-             "Tax": {"number": details['tax']},
-             "Net Amount": {"number": details['net_amount']},
-             "Category": {"select": {"name": details['category']}}
-         }
-     }
-     response = requests.post('https://api.notion.com/v1/pages', headers=headers, json=data)
-     if response.status_code == 200:
-         print('Notion entry created successfully')
-     else:
-         print(f'Failed to create Notion entry: {response.content}')
- ```
-
+ 
  ## Benefits of the Project
 
  - **Automated Expense Management**: Automatically categorize, store, and track bills.
